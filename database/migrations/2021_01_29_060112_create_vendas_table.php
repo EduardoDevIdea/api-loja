@@ -15,7 +15,6 @@ class CreateVendasTable extends Migration
     {
         Schema::create('vendas', function (Blueprint $table) {
             $table->id();
-            $table->text('produtos');
             $table->float('valor');
             $table->string('status')->nullable();
             $table->unsignedBigInteger('id_cliente'); //id_cliente é uma foreign key
