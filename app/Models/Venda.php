@@ -10,10 +10,11 @@ class Venda extends Model
     use HasFactory;
 
     protected $fillable = [
-        'produtos',
+        'data',
         'valor',
         'status',
         'id_cliente',
+        'previsao',
     ];
 
 }

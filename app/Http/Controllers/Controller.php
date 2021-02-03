@@ -10,10 +10,24 @@ use Illuminate\Routing\Controller as BaseController;
 use App\Models\Cliente;
 use App\Models\Venda;
 use App\Models\ItemVenda;
+use App\Models\Produto;
 
 class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    //Calcula previsao de entrega com base na maior data de previsão
+    public function calculaPrevisao($pedido){
+        $maiorPrevisao = 0;
+        foreach($pedido as $item){
+            $produto = Produto::where('id', $item['id'])->first();
+            $previsao = $produto->previsao;
+            if($previsao > $maiorPrevisao){
+                $maiorPrevisao = $previsao;
+            }
+        }
+        return $maiorPrevisao;
+    }
 
     //Registra Cliente e retorna o registro criado
     public function registraCliente($clienteNome, $clienteEmail){
@@ -25,11 +39,13 @@ class Controller extends BaseController
     }
 
     //registra venda e retorna venda criada
-    public function registraVenda($total, $cliente){
+    public function registraVenda($total, $cliente, $pedido){
         $venda = new Venda;
         $venda->valor = $total;
         $venda->status = "Aguardando pagamento";
         $venda->id_cliente = $cliente->id;
+        $venda->data = date('d/m/Y'); //data atual em formato string
+        $venda->previsao = $this->calculaPrevisao($pedido);
         $venda->save();
         return $venda;
     }

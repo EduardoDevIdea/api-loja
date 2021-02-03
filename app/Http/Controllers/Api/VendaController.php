@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 use App\Models\Cliente;
+use App\Models\Venda;
+use App\Models\ItemVenda;
+use App\Models\Produto;
 
 
 class VendaController extends Controller
@@ -19,6 +22,7 @@ class VendaController extends Controller
      */
     public function novaVenda(Request $request){
 
+        //Validacoes
         $request->validate([
             'cliente.nome' => ['required'],
             'cliente.email' => ['required', 'email'],
@@ -42,7 +46,7 @@ class VendaController extends Controller
                 DB::beginTransaction();
 
                 //Registra nova venda fazendo referência ao cliente
-                $newVenda = parent::registraVenda($inputTotal, $clienteCadastro);
+                $newVenda = parent::registraVenda($inputTotal, $clienteCadastro, $inputPedido);
                
                 //Registra itens do pedido fazendo referencia a venda
                 parent::registraItemVenda($inputPedido, $newVenda);
@@ -76,7 +80,7 @@ class VendaController extends Controller
                 $newCliente = parent::registraCliente($inputClienteNome, $inputClienteEmail);
 
                 //Registra venda para o novo cliente  
-                $newVenda = parent::registraVenda($inputTotal, $newCliente);
+                $newVenda = parent::registraVenda($inputTotal, $newCliente, $inputPedido);
 
                 //Registra itens do pedido fazendo referencia a venda
                 parent::registraItemVenda($inputPedido, $newVenda);
@@ -104,25 +108,43 @@ class VendaController extends Controller
     }
     //Fim novaVenda
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
+
+    // Retorna todas as vendas cadastradas
+    public function listaVendas(){
+        $vendas = Venda::all();
+        return response()->json($vendas);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+
+    // retorna venda especifica
+    public function showVenda($id)
     {
-        //
+        //retorna a venda e o cliente associado a ela
+        $venda = Venda::select('vendas.*', 'clientes.nome as cliente', 'clientes.email as email')
+        ->join('clientes', 'clientes.id', 'vendas.id_cliente')
+        ->where('vendas.id', $id)->first();
+
+        //retorna os todos produtos da venda
+        $produtos = ItemVenda::select('item_vendas.preco as preco', 'produtos.nome as nome')
+        ->join('produtos', 'produtos.id', 'item_vendas.id_produto')
+        ->where('item_vendas.id_venda', $id)->get();
+
+        return response()->json([
+            'venda' => $venda,
+            'produtos' => $produtos,
+        ]);
+    }
+    
+
+    //Pagamento da venda (muda status da venda para "Pagamento efetuado")
+    public function pagamentoVenda(Request $request){
+
+        $id = $request->input('id'); //id da venda
+
+        $venda = Venda::find($id);
+        $venda->status = "Pagamento efetuado";
+        $venda->save();
+
+        return response()->json(['message' => "Status de pagamento atualizado com sucesso!"]);
     }
 }

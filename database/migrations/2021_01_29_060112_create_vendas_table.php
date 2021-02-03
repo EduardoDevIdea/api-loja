@@ -15,9 +15,11 @@ class CreateVendasTable extends Migration
     {
         Schema::create('vendas', function (Blueprint $table) {
             $table->id();
+            $table->string('data');
             $table->float('valor');
             $table->string('status')->nullable();
             $table->unsignedBigInteger('id_cliente'); //id_cliente é uma foreign key
+            $table->integer('previsao')->nullable();
             $table->foreign('id_cliente')->references('id')->on('clientes'); //fazendo referencia do campo id_cliente a chave primaria da tabela clientes
             $table->timestamps();
         });

@@ -21,6 +21,12 @@ Route::get('/produtos', [ProdutoController::class, 'getProdutos']);
 
 Route::post('/venda', [VendaController::class, 'novaVenda']);
 
+Route::get('/vendas', [VendaController::class, 'listaVendas']);
+
+Route::get('/show-venda/{id}', [VendaController::class, 'showVenda']);
+
+Route::post('/pagamento', [VendaController::class, 'pagamentoVenda']);
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
