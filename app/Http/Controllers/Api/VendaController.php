@@ -19,6 +19,7 @@ class VendaController extends Controller
      * Verifica se cliente tem cadastro, se nao tiver, registra o cliente
      * Registra nova venda com referencia ao cliente
      * Registra itens do pedido com referencia a venda
+     * Retorna mensagem com resultado obtido
      */
     public function novaVenda(Request $request){
 
@@ -52,16 +53,13 @@ class VendaController extends Controller
                 parent::registraItemVenda($inputPedido, $newVenda);
                 
                 DB::commit();
-                return response()->json(
-                    [
-                        'message' => "Pedido realizado com sucesso! Entraremos em contato através do e-mail com as instruções de pagamento. Obrigado!",
-                        'cliente' => $clienteCadastro,
-                        'venda' => $newVenda
-                    ]
-                );
+
+                return response()->json(['message' => "Pedido realizado com sucesso! Entraremos em contato através do e-mail com as instruções de pagamento. Obrigado!"]);
 
             }catch(\Exception $e){
+
                 DB::rollBack();
+
                 return response()->json(
                     [
                         'message' => "Erro ao finalizar seu pedido: Tente novamente e entre em contato conosco, se o erro persistir",
@@ -74,6 +72,7 @@ class VendaController extends Controller
         }else{
             
             try{
+
                 DB::beginTransaction();
 
                 //Registra cliente
@@ -86,16 +85,13 @@ class VendaController extends Controller
                 parent::registraItemVenda($inputPedido, $newVenda);
 
                 DB::commit();
-                return response()->json(
-                    [
-                        'message' => "Pedido realizado com sucesso! Entraremos em contato através do e-mail com as instruções de pagamento. Obrigado!",
-                        'cliente' => $newCliente,
-                        'venda' => $newVenda
-                    ]
-                );
+
+                return response()->json(['message' => "Pedido realizado com sucesso! Entraremos em contato através do e-mail com as instruções de pagamento. Obrigado!"]);
 
             }catch(\Exception $e){
+
                 DB::rollBack();
+
                 return response()->json(
                     [
                         'message' => "Erro ao finalizar seu pedido: Tente novamente e entre em contato conosco, se o erro persistir",
@@ -116,7 +112,7 @@ class VendaController extends Controller
     }
 
 
-    // retorna venda especifica
+    // retorna venda especifica e os produtos associados a ela
     public function showVenda($id)
     {
         //retorna a venda e o cliente associado a ela
