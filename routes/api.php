@@ -16,17 +16,21 @@ use App\Http\Controllers\Api\VendaController;
 |
 */
 
-
+//Rota para listar todos os produtos
 Route::get('/produtos', [ProdutoController::class, 'getProdutos']);
 
+//Rota para realizar nova venda
 Route::post('/venda', [VendaController::class, 'novaVenda']);
 
+//Rota para listar todas as vendas
 Route::get('/vendas', [VendaController::class, 'listaVendas']);
 
+//Rota para mostrar venda especifica
 Route::get('/show-venda/{id}', [VendaController::class, 'showVenda']);
 
+//Rota para atualizar status de pagamento da venda
 Route::post('/pagamento', [VendaController::class, 'pagamentoVenda']);
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+/* Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
-});
+}); */
